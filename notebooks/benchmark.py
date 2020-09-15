@@ -37,6 +37,7 @@ from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
 from pyod.models.cof import COF
 from pyod.models.sod import SOD
+from ecf import EmpiricalChristoffelFunction
 
 from pyod.utils.utility import standardizer
 from pyod.utils.utility import precision_n_scores
@@ -65,11 +66,11 @@ mat_file_list = ['arrhythmia.mat',
 
 # define the number of iterations
 n_ite = 10
-n_classifiers = 10
+n_classifiers = 4
 
 df_columns = ['Data', '#Samples', '# Dimensions', 'Outlier Perc',
-              'ABOD', 'CBLOF', 'FB', 'HBOS', 'IForest', 'KNN', 'LOF',
-              'MCD', 'OCSVM', 'PCA']
+              'ECF'#,'BaggedECF'
+              , 'IForest','MCD','OCSVM']
 
 # initialize the container for saving the results
 roc_df = pd.DataFrame(columns=df_columns)
@@ -106,39 +107,20 @@ for j in range(len(mat_file_list)):
         # standardizing data for processing
         X_train_norm, X_test_norm = standardizer(X_train, X_test)
 
-        classifiers = {'Angle-based Outlier Detector (ABOD)': ABOD(
-            contamination=outliers_fraction),
-            'Cluster-based Local Outlier Factor': CBLOF(
-                n_clusters=10,
-                contamination=outliers_fraction,
-                check_estimator=False,
-                random_state=random_state),
-            'Feature Bagging': FeatureBagging(contamination=outliers_fraction,
-                                              random_state=random_state),
-            'Histogram-base Outlier Detection (HBOS)': HBOS(
-                contamination=outliers_fraction),
-            'Isolation Forest': IForest(contamination=outliers_fraction,
-                                        random_state=random_state),
-            'K Nearest Neighbors (KNN)': KNN(contamination=outliers_fraction),
-            'Local Outlier Factor (LOF)': LOF(
-                contamination=outliers_fraction),
+        classifiers = {
+            'Empirical Christoffel Function (ECF)': EmpiricalChristoffelFunction(degree=2, n_components=35, contamination=outliers_fraction, filtering_frac=0.9),
+            #'BaggedECF':BaggedECF(degree=2),
+            'Isolation Forest': IForest(contamination=outliers_fraction, random_state=random_state),
             'Minimum Covariance Determinant (MCD)': MCD(
                 contamination=outliers_fraction, random_state=random_state),
-            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction),
-            'Principal Component Analysis (PCA)': PCA(
-                contamination=outliers_fraction, random_state=random_state),
+            'One-class SVM (OCSVM)': OCSVM(contamination=outliers_fraction)
         }
         classifiers_indices = {
-            'Angle-based Outlier Detector (ABOD)': 0,
-            'Cluster-based Local Outlier Factor': 1,
-            'Feature Bagging': 2,
-            'Histogram-base Outlier Detection (HBOS)': 3,
-            'Isolation Forest': 4,
-            'K Nearest Neighbors (KNN)': 5,
-            'Local Outlier Factor (LOF)': 6,
-            'Minimum Covariance Determinant (MCD)': 7,
-            'One-class SVM (OCSVM)': 8,
-            'Principal Component Analysis (PCA)': 9,
+            'Empirical Christoffel Function (ECF)': 0,
+            #'BaggedECF': 1,
+            'Isolation Forest': 1,
+            'Minimum Covariance Determinant (MCD)': 2,
+            'One-class SVM (OCSVM)': 3
         }
 
         for clf_name, clf in classifiers.items():

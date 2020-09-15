@@ -41,6 +41,7 @@ from pyod.models.sos import SOS
 from pyod.models.lscp import LSCP
 from pyod.models.cof import COF
 from pyod.models.sod import SOD
+from ecf import EmpiricalChristoffelFunction
 
 # TODO: add neural networks, LOCI, SOS, COF, SOD
 
@@ -104,13 +105,14 @@ classifiers = {
         contamination=outliers_fraction, random_state=random_state),
     # 'Stochastic Outlier Selection (SOS)': SOS(
     #     contamination=outliers_fraction),
-    'Locally Selective Combination (LSCP)': LSCP(
-        detector_list, contamination=outliers_fraction,
-        random_state=random_state),
+    # 'Locally Selective Combination (LSCP)': LSCP(
+        # detector_list, contamination=outliers_fraction,
+        # random_state=random_state),
     # 'Connectivity-Based Outlier Factor (COF)':
     #     COF(n_neighbors=35, contamination=outliers_fraction),
     # 'Subspace Outlier Detection (SOD)':
     #     SOD(contamination=outliers_fraction),
+    'Empirical Christoffel Function (ECF)': EmpiricalChristoffelFunction()
 }
 
 # Show all detectors
